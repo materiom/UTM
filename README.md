@@ -20,22 +20,24 @@ What is the overall aim for the UTM project
 Very basic guidelines on how to begin building your UTM - leave the details for the proper documentaion
 
 Describe the components
-  - Mechanical
-  - Electrical
-  - Control System / Software
-  - User Interface (GUI)
-  - Integration with Materioms database (if this matches with Materiom's goals?)
+
+  - Mechanical - ...
+  - Electrical - ...
+  - Control System / Software - Schematic of how the components all work together
+  - User Interface (GUI) - ...
+  - Integration with Materiom's database (if this matches with Materiom's goals?)
 
 ## Documentation
 
-Description of what is in the documentation and an overview of the structure
-
-    - CAD files
-    - Photos/videos
-    - Mechanical build instruction manual
-    - Electrical build instruction manual
-    - Software use instructions
-    
+Description of what is in the documentation and an overview of the structure - add links to the docs here
+  
+  - Bill of Materials - Items, Quantities, Suggested suppliers, (estimated costs?)
+  - CAD files - DXF files, FreeCAD assemblies, CAD library
+  - Photos/videos
+  - Mechanical build instruction manual - "LEGO build manual"
+  - Electrical build instruction manual - KiCAD files, "build manual"
+  - Software use instructions 
+  
 
 ## Contribution Guidelines
 
