@@ -15,9 +15,13 @@ What problem(s) does it solve?
 What is the overall aim for the UTM project
 
 
+DISCLAIMERS ABOUT THE ACCURACY OF THE RESULTS AND RELINQUISHING RESPONSIBILITY FOR ANY DECISIONS MADE FROM DATA ARISING FROM THE MACHINE.
+
 ## How to build your own UTM
 
 Very basic guidelines on how to begin building your UTM - leave the details for the proper documentaion
+
+SAFETY INFORMATION AND DISCLAIMERS
 
 Describe the components
 
