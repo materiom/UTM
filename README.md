@@ -4,11 +4,11 @@ Documentation for our open source universal testing machine
 
 ## Introduction
 
-A few key photos of the first UTM
+Why do I want to build a UTM?
 
-What is the UTM?
+What solutions are out there (Link to Dave and Richards combined document)
 
-Why does it exist?
+Why another UTM? Why ours?
 
 What problem(s) does it solve?
 
