@@ -21,7 +21,16 @@ DISCLAIMERS ABOUT THE ACCURACY OF THE RESULTS AND RELINQUISHING RESPONSIBILITY F
 
 Very basic guidelines on how to begin building your UTM - leave the details for the proper documentaion
 
-SAFETY INFORMATION AND DISCLAIMERS
+# SAFETY INFORMATION AND DISCLAIMERS
+
+  - Moving objects/ Entrapment
+  - Projectiles from failed brittle samples (use some guarding/shielding + eye protection)
+  - Electrical Shock - Low voltage but still put everything in abox up and ground the box casing
+  - Damage to the machine from misuse-miscalibration
+  
+  
+
+
 
 Describe the components
 
