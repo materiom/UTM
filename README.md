@@ -1,6 +1,9 @@
 # UTM
 Documentation for our open source universal testing machine
 
+[<b>Read the Documentation - Wiki</span></b>](./wiki) 
+
+
 
 ## Introduction
 
