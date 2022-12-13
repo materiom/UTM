@@ -1,0 +1,968 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href = "../css/font-awesome.min.css">
+    <link rel="stylesheet" href = "../css/uikit.min.css">
+    <link rel="stylesheet" href = "../css/style.css">
+
+    <script type="text/javascript" src="../js/uikit.min.js"></script>
+    <script type="text/javascript" src="../js/uikit-icons.min.js"></script>
+    <script type="text/javascript" src="../js/moment.js"></script>
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script type="text/javascript" src="../js/d3.v5.min.js"></script>
+    
+
+    <title>Materiom - Universal Testing Machine</title>
+
+</head>
+<body style="height:90vh;">
+
+<div id="app">
+    <div class="uk-padding-small uk-width-1-1" style="height: calc(90vh - 24px);">
+
+        <div class="uk-width-1-1 uk-flex uk-flex-between">
+            <div>
+                <ul uk-switcher="connect: .switcher-class" uk-tab>
+                    <li class="uk-active"><a href="">Test <i class="fa fa-play-circle"></i></a></li>
+                    <li :class="[ status.test_running ? 'uk-disabled':'']"><a>Results <i class="fa fa-chart"></i></a></li>
+                    <li :class="[ status.test_running ? 'uk-disabled':'']"><a href="">Configure <i class="fa fa-wrench"></i></a></li>
+                    <li :class="[ status.test_running ? 'uk-disabled':'']"><a>Logs <i class="fa fa-book"></i></a></li>
+                </ul>
+            </div>
+            <div>
+                
+
+            </div>
+           
+
+             <div class="uk-grid-small uk-flex uk-flex-inline uk-flex-middle">
+                <div>
+                     <a href="#" onclick="window.open('about.html', '_blank', 'width=440,height=440')">ABOUT</a>
+                </div>
+                <div>
+                    <img src="../images/tuos_logo.png" width=140>
+                </div>
+                <div>
+                    <img src="../images/materiom_logo.png" width=140>
+                </div>
+            </div>
+        
+        </div>
+
+
+
+        <ul class="uk-switcher switcher-class">
+            <li>
+                <div class="uk-width-1-1 uk-grid-small" uk-grid>
+
+                    <div class="uk-width-1-4" style="height: 80vh; overflow-y:scroll">
+                        <div>
+                            <div>
+                                <fieldset :class="check_method ? 'passed' : '' ">
+                                    <legend>Method <i class="fa fa-check" v-if="check_method" style="color: var(--main-green-active)" uk-tooltip="Method information complete"></i></legend>
+                                   
+
+                                    <div 
+                                        is="method-loader"
+                                        :status="status"
+                                        @load="load_method"
+                                    ></div>
+
+                                </fieldset>
+                            </div>
+                        </div>
+
+
+        
+        
+                      
+        
+                        <div>
+                            <div>
+                                <fieldset :class="check_sample ? 'passed' : '' ">
+                                    <legend>Sample <i class="fa fa-check" v-if="check_sample" style="color: var(--main-green-active)" uk-tooltip="Sample information complete"></i></legend>
+                                    <table class="uk-table uk-table-small" v-if="test.sample">
+                                       
+                                        <tr>
+                                            <td>ID</td>
+                                            <td colspan=2>
+                                                <input class="uk-input" v-model="test.sample.id" type="text" :disabled="status.test_running || status.test_paused"/>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Material</td>
+                                            <td v-if="materials_db.use">
+                                                <select class="uk-select" v-model="test.sample.material"  :disabled="status.test_running || status.test_paused">
+                                                    <option v-for="m in materials"></option>
+                                                </select>
+                                            </td>
+                                            <td v-else>
+                                                <input class="uk-input" v-model="test.sample.material.name" type="text" :disabled="status.test_running || status.test_paused"/>
+                                            </td>
+                                            <td>
+                                                <label>Database <i class="fa fa-link"></i>
+                                                     <input class="uk-checkbox" type="checkbox" v-model="materials_db.use" @click="materials_db.use ?  getMaterials  : '' "/> 
+                                                </label>
+                                               
+                                            </td>
+                                        </tr>
+                                        
+
+                                      
+
+                                          <tr v-if="test.sample.type == 'rectangular'">
+                                            <td colspan=3 class="uk-text-center">
+                                                <div uk-lightbox>
+                                                    <img src="../images/UTM_Rectangular_dimensions.jpg" width=160>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr v-if="test.sample.type == 'circular'">
+                                            <td colspan=3 class="uk-text-center">
+                                                <div uk-lightbox>
+                                                    <img src="../images/UTM_Circular_dimensions.jpg" width=160>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Cross section</td>
+                                            <td colspan=2>
+                                                <select class="uk-select" v-model="test.sample.type" :disabled="status.test_running || status.test_paused">
+                                                    <option value="rectangular">Rectangular</option>
+                                                    <option value="circular">Circular</option>
+                                                    <option value="complex">Complex</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Length <i class="fa fa-question uk-hover" uk-tooltip="Used to calculate the strain in the gauge length"></i></td>
+                                            <td>
+                                                <input class="uk-input" v-model="test.sample.gauge.len" type="number" min=0 step=0.001 :disabled="status.test_running || status.test_paused">
+                                            </td>
+                                            <td>mm</td>
+                                        </tr>
+
+
+                                         <tr v-if="test.sample.type == 'circular'">
+                                            <td>Diameter</td>
+                                            <td>
+                                                <input class="uk-input" v-model="test.sample.gauge.diameter" @input="calc_csa" type="number" min=0 step=0.001 :disabled="status.test_running || status.test_paused">
+                                            </td>
+                                            <td>mm</td>
+                                        </tr>
+
+
+                                        <tr v-if="test.sample.type == 'rectangular'">
+                                            <td>Width</td>
+                                            <td>
+                                                <input class="uk-input" v-model="test.sample.gauge.width" @input="calc_csa" type="number" min=0 step=0.001 :disabled="status.test_running || status.test_paused">
+                                            </td>
+                                            <td>mm</td>
+                                        </tr>
+                                        
+
+                                        <tr v-if="test.sample.type == 'rectangular'">
+                                            <td>Thickness</td>
+                                            <td>
+                                                <input class="uk-input" v-model="test.sample.gauge.thickness" @input="calc_csa" type="number" min=0 step=0.001 :disabled="status.test_running || status.test_paused">
+                                            </td>
+                                            <td>mm</td>
+                                        </tr>
+
+                                         <tr>
+                                            <td>Cross Sectional Area</td>
+                                            <td>
+                                                <input class="uk-input" v-model="test.sample.gauge.cross_section_area" type="number" min=0 step=0.001 :disabled="status.test_running || status.test_paused || test.sample.type != 'complex'" >
+                                            </td>
+                                            <td>mm<sup>2</sup></td>
+                                        </tr>
+                                    </table>
+                                </fieldset>
+                                
+                            </div>
+                        </div>
+                    </div>
+        
+        
+                    <div class="uk-width-expand uk-child-width-1-1">
+                       
+                        <fieldset :class="check_subsystems ? 'passed' : '' ">
+                              <legend><i class="fa fa-check" v-if="check_subsystems" style="color: var(--main-green-active)" uk-tooltip="Test is ready to run"></i></legend>
+                            <div>
+                                <div is="test-controls"
+                                    :running = "status.test_running"
+                                    :paused = "status.test_paused"
+                                    :status="status"
+                                    @start = "start_test"
+                                    @stop = "stop_test"
+                                    @pause = "pause_test"
+                                    @resume = "resume_test"
+                                ></div>
+                            </div>
+                        </fieldset>
+                        
+                        <div class="uk-width-1-1" style="height: 30px">
+                            <div class="uk-width-1-1 uk-text-center glowing-green" v-if="status.test_running">
+                                Test Running
+                            </div>
+                            <div class="uk-width-1-1 uk-text-center glowing-blue" v-if="status.test_paused">
+                                Test Paused
+                            </div>
+                        </div>
+                        
+                        <div class="uk-padding-small">
+                            <div>
+                                 
+                                <div>
+                                    <ul uk-switcher="connect: .plot-switcher" animation="uk-animation-fade" uk-tab>
+                                        <li class="uk-active"><a href="">Load - Displacement</a></li>
+                                        <li v-if="debug_mode"><a href="">Time - Disp abs</a></li>
+                                        <li v-if="debug_mode"><a href="">Time - Speed</a></li> 
+                                        <li><a href="">Stress - Strain</a></li>
+                                    </ul>
+                                </div>
+                                 <div class="uk-height-large">
+                                    <ul class="uk-switcher plot-switcher">
+                                        <li>
+                                            <div
+                                            is="live-plot"
+                                            ref="plot_loaddisp"
+                                            :livedata="values"
+                                            xlabel="Displacement (mm)"
+                                            ylabel="Load (N)"
+                                            xkey="displacement_rel"
+                                            ykey="load_N_rel"
+                                            xfmt=".2f"
+                                            yfmt=".2f"
+                                            :debug=debug_mode
+                                            :testing=status.test_running
+                                        ></div>
+
+                                        </li>
+                                        
+                                         <li v-if="debug_mode">
+                                            <div
+                                            is="live-plot"
+                                            :livedata="values"
+                                            xlabel="Time (s)"
+                                            ylabel="Displacement (mm)"
+                                            xkey="time"
+                                            ykey="displacement_abs"
+                                            xfmt=".2f"
+                                            yfmt=".2f"
+                                            :debug=debug_mode
+                                            :testing=status.test_running
+                                        ></div>
+
+                                        </li>
+                                        
+                                        
+                                         <li v-if="debug_mode">
+                                            <div
+                                            is="live-plot"
+                                            :livedata="values"
+                                            xlabel="Time (s)"
+                                            ylabel="Crosshead Speed (mm/s)"
+                                            xkey="time"
+                                            ykey="speed"
+                                            xfmt=".2f"
+                                            yfmt=".2f"
+                                            :debug=debug_mode
+                                            :testing=status.test_running
+                                        ></div>
+
+                                        </li>
+                                        
+                                        <li>
+                                            <div
+                                            is="live-plot"
+                                            ref="plot_stressstrain"
+                                            :livedata="values"
+                                            xlabel="Strain (mm/mm)"
+                                            ylabel="Stress (MPa)"
+                                            xkey="strain_eng"
+                                            ykey="stress_eng"
+                                            xfmt=".2f"
+                                            yfmt=".2f"
+                                            :debug=debug_mode
+                                            :testing=status.test_running
+                                        ></div>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+        
+                        
+                    </div>
+                    <div class="uk-width-1-4 uk-child-width-1-1 uk-flex uk-flex-column uk-flex-start"  uk-grid>
+                        <div>
+                            <div>
+                                <div class="uk-text-center">Camera</div>
+                                <div class="uk-background-muted uk-text-center" style="width:100%;">
+                                    <img :src="camera_src" style="width:100%;max-height:40vh"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                
+                                <ul uk-tab>
+                                    <li class="uk-active"><a href="">Test</a></li>
+                                    <li><a href="">Controls</a></li>
+                                </ul>
+                                
+                                <ul class="uk-switcher">
+                                <li>
+                                    <div v-if=" values.active_section.name !='Idle'">
+                                        
+                                        <h4 class="uk-text-center">Segment</h4>
+                                        <table class="uk-width-1-1">
+                                            <tr>
+                                                <td>Name</td>
+                                                <td>{{values.active_section.name}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Direction</td>
+                                                <td>{{values.active_section.direction}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Setpoint</td>
+                                                <td>{{values.active_section.setpoint}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Control</td>
+                                                <td>{{values.active_section.control}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>End</td>
+                                                <td>{{values.active_section.end}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Delay</td>
+                                                <td>{{values.active_section.delay}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Wait for input</td>
+                                                <td>{{values.active_section.input}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    
+                                    
+                                
+                                </li>
+                        
+                               <li>
+                                    <div>
+                                        <table class="uk-table uk-table-small uk-width-1-1">
+                                        
+                                         <tr>
+                                            <td style="width:25%">System enable</td>
+                                            <td style="width:75%" colspan=3>
+                                                <div v-if="status.enabled == true" class="uk-button uk-button-primary" @click="disable_motor">Disable</div>
+                                                <div v-else class="uk-button uk-button-primary " @click="enable_motor">Enable</div>
+                                               
+                                            </td>
+                                        </tr>
+                                       
+                                        <tr>
+                                            <td>Move grips</td>
+                                            <td style="width:25%">
+                                                <div uk-tooltip="Change Jog Speed" style="line-height:15px" :class="[status.jog_mode == 'slow' ? 'uk-button-success' : 'uk-button-danger','uk-width-1-1','uk-button', 'uk-button-small' ,'uk-text-center', 'uk-flex', 'uk-flex-center']" @click="jog_mode_toggle">
+                                                    {{status.jog_mode.toUpperCase()}}
+                                                </div>
+                                            </td>
+                                            <td style="width:25%">
+                                                <div uk-tooltip="Click and hold to move grips apart" class="uk-width-1-1 uk-button uk-button-small uk-button-primary uk-text-center" @mousedown="jog_apart" @mouseup="jog_stop">
+                                                    <i class="fa fa-expand"></i>
+                                                </div>
+                                            </td>
+                                            <td style="width:25%">
+                                                <div uk-tooltip="Click and hold to move grips together" class="uk-width-1-1 uk-button uk-button-small uk-button-primary uk-text-center" @mousedown="jog_together" @mouseup="jog_stop" >
+                                                    <i class="fa fa-compress"></i>
+                                                </div>
+                                            </td>
+                                           
+                                        </tr>
+
+                                        <tr>
+                                            <td>Move to position</td>
+                                            <td colspan=2>
+                                                <div class="uk-width-1-1  uk-flex uk-flex-inline uk-flex-middle">
+                                                    <div>
+                                                        <input class="uk-input" type="number" v-model="position_target" :min="config.config.modules.digital_extensometer.limits[0]" :max="config.config.modules.digital_extensometer.limits[1]" step=0.01 :disabled="status.test_running || status.test_paused || !status.enabled" />
+                                                    </div>
+                                                    <div>mm</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="uk-button uk-button-small uk-button-success" uk-tooltip="Move actuator to position" @click="move_to_position">
+                                                    GO
+                                                </div>  
+                                            </td>
+                                        </tr>
+                                      
+                                         <tr>
+                                            <td colspan=2>Light #1 </td>
+                                            <td colspan=2>Light #2 </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan=2>
+                                                <div class="uk-width-expand">
+                                                    <input class="uk-input" type="number" @change="setLED(1, $event.target.value)" :min="config.config.modules.led1.limits[0]" :max="config.config.modules.led1.limits[1]" step=1 :disabled="status.test_running || status.test_paused || !status.enabled" />
+                                                </div>
+                                            </td>
+                                            <td colspan=2>
+                                                <div class="uk-width-expand">
+                                                    <input class="uk-input" type="number" @change="setLED(2, $event.target.value)" :min="config.config.modules.led2.limits[0]" :max="config.config.modules.led2.limits[1]" step=1 :disabled="status.test_running || status.test_paused || !status.enabled" />
+                                                </div>
+                                            </td>
+                                        </tr>
+
+
+                                    </table>
+                                    </div>
+                                </li>
+                            </ul>
+                            
+                            
+                        
+                            </div>
+                       
+                    
+                        </div>
+                    
+                    </div>
+        
+                </div>
+        
+            
+        
+          
+           
+
+
+            </li>
+            
+            
+            
+            <li>
+                <div style="max-height: calc(75vh);overflow-y:scroll" uk-grid>
+                    
+                   <div
+                        is="results"
+                        ref="results"
+                   ></div>
+                    
+                </div>
+            </li>
+            
+            
+
+            <li>
+                <div style="max-height: calc(75vh);overflow-y:scroll" class="uk-grid-small uk-width-1-1 uk-child-width-1-4" uk-grid v-if="config.config">
+
+                     <div v-if="config.config.controller">
+                        <div>
+                            <fieldset>
+                                <legend>Controller <span v-if="controller_process" :style="{'color': controller_process.connected ? 'var(--main-green-active)':'#ddd'}"><i class="fa fa-check"></i></span></legend>
+                                <table class="uk-table uk-table-small">
+                                    
+                                    <tr>
+                                        <td>GPIO (I<sup>2</sup>C)</td>
+                                        <td class="uk-text-center">
+                                            SDA
+                                        </td>
+                                         <td class="uk-text-center">
+                                            SCL
+                                        </td>
+                                    </tr>
+
+
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.gpio.sda" :disabled="status.test_running || status.test_paused" @change="config.save()"/>
+                                        </td>
+                                         <td>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.gpio.scl" :disabled="status.test_running || status.test_paused" @change="config.save()"/>
+                                        </td>
+                                    </tr>
+
+
+
+
+                                    <tr>
+                                        <td colspan=3>PID Controller</td>
+                                    </tr>
+                                    <tr>
+                                        <td>K<sub>P</sub></td>
+                                        <td colspan=2>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.pid.kp" :disabled="status.test_running || status.test_paused" @change="config.save()" />
+                                        </td>
+                                    </tr>
+                                     <tr>
+                                        <td>K<sub>I</sub></td>
+                                        <td colspan=2>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.pid.ki" :disabled="status.test_running || status.test_paused" @change="config.save()" />
+                                        </td>
+                                    </tr>
+                                     <tr>
+                                        <td>K<sub>D</sub></td>
+                                        <td colspan=2>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.pid.kd" :disabled="status.test_running || status.test_paused" @change="config.save()" />
+                                        </td>
+                                    </tr>
+
+                                   
+                                </table>
+
+                            </fieldset>
+                                
+                        </div>
+                    </div>
+
+
+
+
+                     <div v-if="config.config.modules.load_cell">
+                        <div>
+                            <fieldset>
+                                <legend>Load Cell</legend>
+                                <button class="uk-button uk-button-danger" @click="sendToController('cmd:init:load_cell')">Reinitialise</button>
+                                <table class="uk-table uk-table-small">
+
+                                    <tr>
+                                        <td>Amplifier</td>
+                                        <td colspan=3>
+                                            <select class="uk-select"  v-model="config.config.modules.load_cell.amplifier" :disabled="status.test_running || status.test_paused" @change="config.save()">
+                                                <option value="HX711">HX711</option>
+                                                <option value="NAU7802">NAU7802</option>
+                                            </select>
+                                        </td>
+                                        
+                                    </tr>
+                                     <tr>
+                                        <td>Channel</td>
+                                        <td colspan=3>
+                                            <select class="uk-select"  v-model="config.config.modules.load_cell.channel" :disabled="status.test_running || status.test_paused" @change="config.save()">
+                                                <option value=1>1</option>
+                                                <option value=2>2</option>
+                                            </select>
+                                        </td>
+                                        
+                                    </tr>
+                                     <tr>
+                                        <td>GPIO</td>
+                                        <td class="uk-text-center">
+                                            Data
+                                        </td>
+                                        <td class="uk-text-center">
+                                            Clock
+                                        </td>
+                                        <td class="uk-text-center">
+                                            Rate
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                            <input class="uk-input" type="number" v-model="config.config.modules.load_cell.gpio.data" :disabled="status.test_running || status.test_paused" min=1 @change="config.save()"/>
+                                        </td>
+                                         <td>
+                                            <input class="uk-input" type="number" v-model="config.config.modules.load_cell.gpio.clock" :disabled="status.test_running || status.test_paused" min=1 @change="config.save()"/>
+                                        </td>
+                                         <td>
+                                            <input class="uk-input" type="number" v-model="config.config.modules.load_cell.gpio.rate" :disabled="status.test_running || status.test_paused" min=1 @change="config.save()"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rate</td>
+                                        <td colspan=3>
+                                             <select class="uk-select"  v-model="config.config.modules.load_cell.rate" :disabled="status.test_running || status.test_paused" @change="config.save()">
+                                                <option value=10>10 Hz</option>
+                                                <option value=80>80 Hz</option>
+                                            </select>
+
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gain</td>
+                                        <td colspan=2>
+                                            <select class="uk-select"  v-model="config.config.modules.load_cell.gain" :disabled="status.test_running || status.test_paused" @change="config.save()">
+                                                <option value=1>1</option>
+                                                <option value=2>2</option>
+                                                <option value=4>1</option>
+                                                <option value=8>2</option>
+                                                <option value=16>16</option>
+                                                <option value=32>32</option>
+                                                <option value=64>64</option>
+                                                <option value=128>128</option>
+                                            </select>
+                                        </td>
+                                        
+                                    </tr>
+                                     <tr>
+                                        <td>Linear Calibration Factor</td>
+                                        <td colspan=3>
+                                            <input class="uk-input" type="number" v-model="config.config.modules.load_cell.calibration.factor" :disabled="status.test_running || status.test_paused || config.config.modules.load_cell.emulated " @change="config.save()"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zero Offset</td>
+                                        <td colspan=3>
+                                            <input class="uk-input" type="number" v-model="config.config.modules.load_cell.calibration.zero_offset" :disabled="status.test_running || status.test_paused || config.config.modules.load_cell.emulated " @change="config.save()"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Limits ({{ config.config.modules.load_cell.units }})</td>
+                                        <td class="uk-text-center">Min</td>
+                                        <td class="uk-text-center">Max</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                            <input class="uk-input" v-model="config.config.modules.load_cell.limits[0]" type="number"  :max="config.config.modules.load_cell.limits[1]" :disabled="status.test_running || status.test_paused " @change="config.save()"/>
+                                        </td>
+                                        <td>
+                                            <input class="uk-input" v-model="config.config.modules.load_cell.limits[1]" type="number"  :min="config.config.modules.load_cell.limits[0]" :disabled="status.test_running || status.test_paused" @change="config.save()"/>
+                                        </td>
+                                    </tr>
+                                   
+                                </table>
+                            </fieldset>
+                                
+                        </div>
+                    </div>
+
+                     <div v-if="config.config.modules.digital_extensometer">
+                        <div>
+                            <fieldset>
+                                <legend>Digital Extensometer</legend>
+                                <button class="uk-button uk-button-danger" @click="sendToController('cmd:init:digital_extensometer')">Reinitialise</button>
+                                <table class="uk-table uk-table-small">
+
+                                     <tr>
+                                        <td>Type</td>
+                                        <td colspan=2>
+                                             <select class="uk-select"  v-model="config.config.modules.digital_extensometer.type" :disabled="status.test_running || status.test_paused" @change="config.save()">
+                                                <option value="serial">Serial</option>
+                                                <option value="i2c">I<sup>2</sup>C</option>
+                                                <option value="spi">SPI</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+
+
+                                    <tr v-if="config.config.modules.digital_extensometer.type == 'serial'">
+                                        <td>Port</td>
+                                        <td colspan=2>
+                                             <select class="uk-select"  v-model="config.config.modules.digital_extensometer.port" :disabled="status.test_running || status.test_paused" @change="config.save()">
+                                                <option v-for="p in config.ports" :value="p.path">{{ p.path }}</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr v-if="config.config.modules.digital_extensometer.type == 'serial'">
+                                        <td>Baud Rate</td>
+                                        <td colspan=2>
+                                             <input class="uk-input" type="number" min=0 step=1 v-model="config.config.modules.digital_extensometer.baudrate" :disabled="status.test_running || status.test_paused" @change="config.save()" /> 
+                                        </td>
+                                    </tr>
+
+
+                                    <tr v-if="config.config.modules.digital_extensometer.type == 'i2c'">
+                                        <td>GPIO (I<sup>2</sup>C)</td>
+                                        <td class="uk-text-center">
+                                            SDA
+                                        </td>
+                                         <td class="uk-text-center">
+                                            SCL
+                                        </td>
+                                    </tr>
+
+
+                                    <tr v-if="config.config.modules.digital_extensometer.type == 'i2c'">
+                                        <td></td>
+                                        <td>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.gpio.sda" :disabled="status.test_running || status.test_paused" @change="config.save()"/>
+                                        </td>
+                                         <td>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.gpio.scl" :disabled="status.test_running || status.test_paused" @change="config.save()"/>
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                                    <tr v-if="config.config.modules.digital_extensometer.type == 'spi'">
+                                        <td colspan=3>GPIO (SPI)</td>
+                                    </tr>
+
+
+                                    <tr v-if="config.config.modules.digital_extensometer.type == 'spi'">
+                                        <td>M0SI</td>
+                                        <td colspan=2>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.gpio.mosi" :disabled="status.test_running || status.test_paused" @change="config.save()"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr v-if="config.config.modules.digital_extensometer.type == 'spi'">
+                                        <td>MISO</td>
+                                        <td colspan=2>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.gpio.miso" :disabled="status.test_running || status.test_paused" @change="config.save()"/>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="config.config.modules.digital_extensometer.type == 'spi'">
+                                        <td>Clock</td>
+                                        <td colspan=2>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.gpio.sclk" :disabled="status.test_running || status.test_paused" @change="config.save()"/>
+                                        </td>
+                                    </tr>
+
+                                     <tr v-if="config.config.modules.digital_extensometer.type == 'spi'">
+                                        <td>Chip Select</td>
+                                        <td colspan=2>
+                                            <input class="uk-input" type="number" v-model="config.config.controller.gpio.cs" :disabled="status.test_running || status.test_paused" @change="config.save()"/>
+                                        </td>
+                                    </tr>
+
+
+                                    <tr>
+                                        <td>Limits ({{ config.config.modules.digital_extensometer.units }})</td>
+                                        <td>Min</td>
+                                        <td>Max</td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                            <input class="uk-input" v-model="config.config.modules.digital_extensometer.limits[0]" type="number"  :max="config.config.modules.digital_extensometer.limits[1]" :disabled="status.test_running || status.test_paused || config.config.modules.digital_extensometer.emulated " @change="config.save()"/>
+                                        </td>
+                                        <td>
+                                            <input class="uk-input" v-model="config.config.modules.digital_extensometer.limits[1]" type="number"  :min="config.config.modules.digital_extensometer.limits[0]" :disabled="status.test_running || status.test_paused || config.config.modules.digital_extensometer.emulated " @change="config.save()"/>
+                                        </td>
+                                    </tr>
+
+                                   
+                                </table>
+                            </fieldset>
+                                
+                        </div>
+                    </div>
+
+
+
+                      <div>
+                        <div>
+                            <fieldset>
+                                <legend>Video Extensometer (not ready)</legend>
+                                <button class="uk-button uk-button-danger" @click="sendToController('cmd:init:video_extensometer')">Reinitialise</button>
+                                <table class="uk-table uk-table-small">
+                                    
+                                </table>
+                            </fieldset>
+                                
+                        </div>
+                    </div>
+
+
+
+                   
+
+
+
+                </div>
+            </li>
+
+            
+            
+            <li>
+                <div style="max-height: calc(75vh)">
+                        <h2 class="uk-text-center">Logs</h2> 
+                        <div class="uk-grid-small uk-width-1-1 uk-child-width-1-2 uk-height-auto" uk-grid>
+                            <div>
+                                <h3>Alarms</h3>
+                                <div class="bordered"  style="max-height: calc(65vh);overflow-y:scroll">
+                                    
+                                    <table class="uk-table-striped uk-width-1-1">
+                                        <tbody>
+                                            <tr v-for="e in alarms">
+                                                <td style="width: 200px">{{ e.ts }}</td>
+                                                <td>{{ e.text }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3>Logs</h3>
+                                <div class="bordered"  style="max-height: calc(65vh);overflow-y:scroll">
+                                    
+                                     <table class="uk-table-striped uk-width-1-1">
+                                        <tbody>
+                                            <tr v-for="e in events">
+                                                <td style="width: 200px">{{ e.ts }}</td>
+                                                <td>{{ e.text }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                               
+                            </div>
+                        </div>
+                </div>
+                
+                
+            
+            </li>
+
+
+        </ul>
+
+
+
+        <div class="uk-width-1-1 uk-child-width-1-6" style="position:absolute; bottom:0px" uk-grid>
+            <div>
+                <div is="value-display"
+                    :value="values.displacement_abs"
+                    name="Displacement (abs.)"
+                    units="mm"
+                    
+                ></div>
+            </div>
+            <div>
+                <div is="value-display"
+                    :value="values.displacement_rel"
+                    name="Displacement (rel.)"
+                    units="mm"
+                    zeroable=true
+                    @zero="zero_disp"
+                ></div>
+            </div>
+             <div>
+                <div is="value-display"
+                    :value="values.speed"
+                    name="Speed"
+                    units="mm/s"
+                ></div>
+            </div>
+             <div>
+                <div is="value-display"
+                    :value="values.motor_setpoint"
+                    name="Setpoint"
+                    units="bits"
+                ></div>
+            </div>
+            
+            <div>
+                  <div v-if="load_units == 'bits'"
+                    is="value-display"
+                    :value="values.load_bits_abs"
+                    name="Load (abs.)"
+                    units="bits"
+                    @change-units="change_load_units"
+                ></div>
+                <div v-if="load_units == 'g'"
+                    is="value-display"
+                    :value="values.load_g_abs"
+                    name="Load (abs.)"
+                    units="g"
+                    @change-units="change_load_units"
+                ></div>
+                <div v-if="load_units == 'N'"
+                    is="value-display"
+                    :value="values.load_N_abs"
+                    name="Load (abs.)"
+                    units="N"
+                    @change-units="change_load_units"
+                ></div>
+                <div v-if="load_units == 'kN'"
+                    is="value-display"
+                    :value="values.load_kN_abs"
+                    name="Load (abs.)"
+                    units="kN"
+                    @change-units="change_load_units"
+                ></div>
+            </div>
+            
+            <div>
+                <div v-if="load_units == 'bits'"
+                    is="value-display"
+                    :value="values.load_bits_rel"
+                    name="Load (rel.)"
+                    units="bits"
+                    zeroable=true
+                    @zero="zero_load"
+                    @change-units="change_load_units"
+                ></div>
+                <div v-if="load_units == 'g'"
+                    is="value-display"
+                    :value="values.load_g_rel"
+                    name="Load (rel.)"
+                    units="g"
+                    zeroable=true
+                    @zero="zero_load"
+                    @change-units="change_load_units"
+                ></div>
+                <div v-if="load_units == 'N'"
+                    is="value-display"
+                    :value="values.load_N_rel"
+                    name="Load (rel.)"
+                    units="N"
+                    zeroable=true
+                    @zero="zero_load"
+                    @change-units="change_load_units"
+                ></div>
+                <div v-if="load_units == 'kN'"
+                    is="value-display"
+                    :value="values.load_kN_rel"
+                    name="Load (rel.)"
+                    units="kN"
+                    zeroable=true
+                    @zero="zero_load"
+                    @change-units="change_load_units"
+                ></div>
+            </div>
+           
+    
+        </div>
+            
+     
+       
+
+    
+    </div>
+
+
+
+
+        
+</div>
+<script type="text/javascript" src="../js/components/results.js"></script>
+<script type="text/javascript" src="../js/components/method_loader.js"></script>
+<script type="text/javascript" src="../js/components/controls.js"></script>
+<script type="text/javascript" src="../js/components/value_display.js"></script>
+<script type="text/javascript" src="../js/components/plot.js"></script>
+<script  type="text/javascript" src="../js/main.js"></script>
+
+</body>
+</html>

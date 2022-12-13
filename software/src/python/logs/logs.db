@@ -1,0 +1,5 @@
+{"ts":"17:51:31 24/10/22","text":"Initialising UTM","_id":"KCRZk4m53gAEYg4Z","createdAt":{"$$date":1666630291568},"updatedAt":{"$$date":1666630291568}}
+{"ts":"17:51:32 24/10/22","text":"[Controller] => Service started","_id":"6e1rwb0R2jm9ZxV0","createdAt":{"$$date":1666630292461},"updatedAt":{"$$date":1666630292461}}
+{"ts":"17:51:32 24/10/22","text":"[Controller] => Error from controller: /usr/bin/python3: can't find '__main__' module in '/home/utm/Materiom_UMT/app/src/python/'\n","type":"quiet","_id":"Cx8O0qcRDHFEff3Q","createdAt":{"$$date":1666630292656},"updatedAt":{"$$date":1666630292656}}
+{"ts":"17:51:32 24/10/22","text":"[Controller] => Service exited code 1 ","_id":"nnkrKRthrIBpMO8g","createdAt":{"$$date":1666630293035},"updatedAt":{"$$date":1666630293035}}
+{"ts":"17:51:32 24/10/22","text":"[Controller] => Service closed code 1 ","_id":"AcX01KNp0HqrFMQ2","createdAt":{"$$date":1666630293072},"updatedAt":{"$$date":1666630293072}}
