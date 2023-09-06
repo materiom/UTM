@@ -1,5 +1,5 @@
 # UTM
-Documentation for our open source universal testing machine
+Documentation the Materiom Universal Testing Machine
 
 [<b>Read the Documentation - Wiki</span></b>](../../wiki) 
 
